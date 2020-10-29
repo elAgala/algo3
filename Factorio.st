@@ -27,17 +27,17 @@ cantidadDeMenas
 conectarA: unDestino
 	destino := unDestino.! !
 
-!CintaAzul class methodsFor: 'as yet unclassified' stamp: 'II 10/26/2020 20:40:59'!
+!CintaAzul class methodsFor: 'as yet unclassified' stamp: 'agala 10/29/2020 15:09:56'!
 initializeCollaboratorsFromFile
 	"Auto generated method for loading purposes - Do not modify it"
 
 	destino := CintaRoja.
 	contenido := ((OrderedCollection new)).! !
 
-!CintaAzul class methodsFor: 'as yet unclassified' stamp: 'II 10/26/2020 19:44:43'!
+!CintaAzul class methodsFor: 'as yet unclassified' stamp: 'agala 10/29/2020 14:56:42'!
 moverMena
 	destino agregar: (contenido at:1).
-	contenido remove: (contenido at:1)! !
+	contenido removeAt: 1! !
 
 !CintaAzul class methodsFor: 'as yet unclassified' stamp: 'II 10/26/2020 19:24:49'!
 vaciar
@@ -73,17 +73,17 @@ cantidadDeMenas
 conectarA: unDestino
 	destino := unDestino.! !
 
-!CintaRoja class methodsFor: 'as yet unclassified' stamp: 'II 10/26/2020 20:40:59'!
+!CintaRoja class methodsFor: 'as yet unclassified' stamp: 'agala 10/29/2020 15:09:56'!
 initializeCollaboratorsFromFile
 	"Auto generated method for loading purposes - Do not modify it"
 
 	destino := Contenedor.
 	contenido := ((OrderedCollection new)).! !
 
-!CintaRoja class methodsFor: 'as yet unclassified' stamp: 'II 10/26/2020 19:44:25'!
+!CintaRoja class methodsFor: 'as yet unclassified' stamp: 'agala 10/29/2020 14:58:42'!
 moverMena
 	destino agregar: (contenido at:1).
-	contenido remove: (contenido at:1)! !
+	contenido removeAt: 1! !
 
 !CintaRoja class methodsFor: 'as yet unclassified' stamp: 'II 10/26/2020 19:22:21'!
 vaciar
@@ -115,11 +115,11 @@ cantidadDe: unaMenaDeMuestra
 cantidadDeMenas
 	^contenido size.! !
 
-!Contenedor class methodsFor: 'as yet unclassified' stamp: 'II 10/26/2020 20:40:59'!
+!Contenedor class methodsFor: 'as yet unclassified' stamp: 'agala 10/29/2020 15:09:56'!
 initializeCollaboratorsFromFile
 	"Auto generated method for loading purposes - Do not modify it"
 
-	contenido := ((OrderedCollection new) add: #carbon; add: #hierro; yourself).! !
+	contenido := ((OrderedCollection new) add: #carbon; yourself).! !
 
 !Contenedor class methodsFor: 'as yet unclassified' stamp: 'SF 10/23/2020 00:35:51'!
 vaciar
@@ -147,11 +147,11 @@ conectarA: unDestino
 extraer
 	destino agregar: #carbon.! !
 
-!ExtractorDeCarbon class methodsFor: 'as yet unclassified' stamp: 'II 10/26/2020 20:40:59'!
+!ExtractorDeCarbon class methodsFor: 'as yet unclassified' stamp: 'agala 10/29/2020 15:09:56'!
 initializeCollaboratorsFromFile
 	"Auto generated method for loading purposes - Do not modify it"
 
-	destino := CintaRoja.! !
+	destino := Contenedor.! !
 
 
 !classDefinition: #ExtractorDeHierro category: 'Factorio'!
@@ -175,7 +175,7 @@ conectarA: unDestino
 extraer
 	destino agregar: #hierro.! !
 
-!ExtractorDeHierro class methodsFor: 'as yet unclassified' stamp: 'II 10/26/2020 20:40:59'!
+!ExtractorDeHierro class methodsFor: 'as yet unclassified' stamp: 'agala 10/29/2020 15:09:56'!
 initializeCollaboratorsFromFile
 	"Auto generated method for loading purposes - Do not modify it"
 
