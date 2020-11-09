@@ -47,19 +47,17 @@ comprobarSi: closure esErrorEn: Error Para: condicion
 		do:[:anError|
 			 (condicion value: anError)]! !
 
-!CustomerBookTest methodsFor: 'tests' stamp: 'II 11/5/2020 17:10:11'!
+!CustomerBookTest methodsFor: 'tests' stamp: 'II 11/9/2020 17:17:01'!
 test01AddingCustomerShouldNotTakeMoreThan50Milliseconds
 	| customerBook |
 
 	customerBook := CustomerBook new.
-	
-	customerBook initialize.
 
 	self assert: (self calcularTimeEnMilliseconds: [customerBook addCustomerNamed: 'John Lennon']) < (50 * millisecond)
 	
 ! !
 
-!CustomerBookTest methodsFor: 'tests' stamp: 'II 11/5/2020 17:11:23'!
+!CustomerBookTest methodsFor: 'tests' stamp: 'II 11/9/2020 17:10:51'!
 test02RemovingCustomerShouldNotTakeMoreThan100Milliseconds
 
 	| customerBook paulMcCartney|
@@ -68,7 +66,7 @@ test02RemovingCustomerShouldNotTakeMoreThan100Milliseconds
 	paulMcCartney := 'Paul McCartney'.
 	customerBook addCustomerNamed: paulMcCartney.
 	
-	self assert: (self calcularTimeEnMilliseconds: [customerBook removeCustomerNamed: paulMcCartney.]) < (100 * millisecond)
+	self assert: (self calcularTimeEnMilliseconds: [customerBook removeCustomerNamed: paulMcCartney]) < (100 * millisecond)
 
 
 
@@ -89,7 +87,7 @@ test03CanNotAddACustomerWithEmptyName
 	self comprobarSi: condicion esErrorEn: Error Para: prueba
 	! !
 
-!CustomerBookTest methodsFor: 'tests' stamp: 'II 11/7/2020 19:36:07'!
+!CustomerBookTest methodsFor: 'tests' stamp: 'II 11/9/2020 17:16:34'!
 test04CanNotRemoveAnInvalidCustomer
 	
 	| customerBook condicion prueba johnLennon|
@@ -100,24 +98,14 @@ test04CanNotRemoveAnInvalidCustomer
 	
 	condicion:=[customerBook removeCustomerNamed: 'Paul McCartney'.]. 
 	prueba:=[:anError| 
-			self assert: (customerBook numberOfCustomers = 0).
+			self assert: (customerBook numberOfCustomers = 1).
 			self assert: (customerBook includesCustomerNamed: johnLennon)].
-	self comprobarSi: condicion esErrorEn: NotFound Para: prueba
+		
+	self comprobarSi: condicion esErrorEn: NotFound Para: prueba.
 
-	"		
-	customerBook := CustomerBook new.
-	johnLennon := 'John Lennon'.
-	customerBook addCustomerNamed: johnLennon.
-	
-	[ customerBook removeCustomerNamed: 'Paul McCartney'.
-	self fail ]
-		on: NotFound 
-		do: [ :anError | 
-			self assert: customerBook numberOfCustomers = 1.
-			self assert: (customerBook includesCustomerNamed: johnLennon) ]
-	"! !
+! !
 
-!CustomerBookTest methodsFor: 'tests' stamp: 'II 11/7/2020 19:25:40'!
+!CustomerBookTest methodsFor: 'tests' stamp: 'II 11/9/2020 17:17:20'!
 test05SuspendingACustomerShouldNotRemoveItFromCustomerBook
 
 	| customerBook paulMcCartney cantidad pruebas|
@@ -136,23 +124,16 @@ test05SuspendingACustomerShouldNotRemoveItFromCustomerBook
 	pruebas add: ([customerBook numberOfSuspendedCustomers] value).
 	pruebas add: ([customerBook numberOfCustomers] value).
 	pruebas add: ([customerBook includesCustomerNamed: paulMcCartney]value).
-	self chequearCantidadesEn: cantidad seanIgualesA: pruebas.
-	"
-	self assert: (customerBook includesCustomerNamed: paulMcCartney)."
-	"
-	self assert: 0 equals: customerBook numberOfActiveCustomers.
-	self assert: 1 equals: customerBook numberOfSuspendedCustomers.
-	self assert: 1 equals: customerBook numberOfCustomers.
-	self assert: (customerBook includesCustomerNamed: paulMcCartney).
 	
-"
+	self chequearCantidadesEn: cantidad seanIgualesA: pruebas.
+
 	
 ! !
 
-!CustomerBookTest methodsFor: 'tests' stamp: 'NR 4/3/2019 10:50:28'!
+!CustomerBookTest methodsFor: 'tests' stamp: 'II 11/9/2020 17:17:27'!
 test06RemovingASuspendedCustomerShouldRemoveItFromCustomerBook
 
-	| customerBook paulMcCartney|
+	| customerBook paulMcCartney cantidad pruebas|
 	
 	customerBook := CustomerBook new.
 	paulMcCartney := 'Paul McCartney'.
@@ -161,16 +142,21 @@ test06RemovingASuspendedCustomerShouldRemoveItFromCustomerBook
 	customerBook suspendCustomerNamed: paulMcCartney.
 	customerBook removeCustomerNamed: paulMcCartney.
 	
-	self assert: 0 equals: customerBook numberOfActiveCustomers.
-	self assert: 0 equals: customerBook numberOfSuspendedCustomers.
-	self assert: 0 equals: customerBook numberOfCustomers.
-	self deny: (customerBook includesCustomerNamed: paulMcCartney).
-
+	cantidad:= #(0 0 0 false).
+	
+	pruebas:= OrderedCollection new.
+	pruebas add: ([customerBook numberOfActiveCustomers] value).
+	pruebas add: ([customerBook numberOfSuspendedCustomers] value).
+	pruebas add: ([customerBook numberOfCustomers] value).
+	pruebas add: ([customerBook includesCustomerNamed: paulMcCartney]value).
+	
+	self chequearCantidadesEn: cantidad seanIgualesA: pruebas.
+	
 
 	
 ! !
 
-!CustomerBookTest methodsFor: 'tests' stamp: 'II 11/7/2020 19:36:00'!
+!CustomerBookTest methodsFor: 'tests' stamp: 'II 11/9/2020 17:17:31'!
 test07CanNotSuspendAnInvalidCustomer
 	
 	| customerBook johnLennon condicion prueba|
@@ -179,10 +165,11 @@ test07CanNotSuspendAnInvalidCustomer
 	johnLennon := 'John Lennon'.
 	customerBook addCustomerNamed: johnLennon.
 	
-	condicion:=[customerBook suspendCustomerNamed: 'Ringo Starr'.]. 
+	condicion:=[customerBook suspendCustomerNamed: 'Ringo Starr']. 
 	prueba:=[:anError|
 			self assert:customerBook numberOfCustomers = 1.
 			self assert: (customerBook includesCustomerNamed: johnLennon)].
+		
 	self comprobarSi: condicion esErrorEn: CantSuspend Para: prueba
 ! !
 
@@ -235,21 +222,6 @@ removeCustomerNamed: aName.
 	(suspended includes: aName) ifTrue: [suspended remove: aName. ^aName ]. 
 	^ NotFound signal.
 ! !
-
-!CustomerBook methodsFor: 'customer management' stamp: 'II 11/5/2020 17:08:02'!
-removeName: aName fromCollection: aCollection
-
-	1 to: aCollection size do: 
-	[ :index |
-		aName = (aCollection at: index)
-			ifTrue: [
-				aCollection removeAt: index.
-				^True
-			] 
-	].
-
-	^False.
-	! !
 
 !CustomerBook methodsFor: 'customer management' stamp: 'jb 11/2/2020 21:08:27'!
 suspendCustomerNamed: aName 
