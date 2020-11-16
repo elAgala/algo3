@@ -423,31 +423,31 @@ with: aDividend over: aDivisor
 
 !classDefinition: #Entero category: 'Numeros-Parte2-Ejercicio'!
 Numero subclass: #Entero
-	instanceVariableNames: 'value'
+	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Numeros-Parte2-Ejercicio'!
 
-!Entero methodsFor: 'testing' stamp: 'NR 9/23/2018 22:17:55'!
+!Entero methodsFor: 'testing' stamp: 'II 11/16/2020 05:04:13'!
 isNegative
 	
-	^value < 0! !
+	self subclassResponsibility ! !
 
-!Entero methodsFor: 'testing' stamp: 'HernanWilkinson 5/7/2016 20:14'!
+!Entero methodsFor: 'testing' stamp: 'II 11/16/2020 05:04:20'!
 isOne
 	
-	^value = 1! !
+	self subclassResponsibility ! !
 
-!Entero methodsFor: 'testing' stamp: 'HernanWilkinson 5/7/2016 20:12'!
+!Entero methodsFor: 'testing' stamp: 'II 11/16/2020 05:04:26'!
 isZero
 	
-	^value = 0! !
+	self subclassResponsibility ! !
 
 
-!Entero methodsFor: 'initialization' stamp: 'II 11/9/2020 21:11:15'!
+!Entero methodsFor: 'initialization' stamp: 'II 11/16/2020 05:43:09'!
 initializeWith: aValue
-	
-	value := aValue! !
+	self subclassResponsibility 
+	! !
 
 
 !Entero methodsFor: 'arithmetic operations' stamp: 'II 11/16/2020 03:06:09'!
@@ -473,20 +473,6 @@ initializeWith: aValue
 	
 	^ aDivisor divideEntero: self! !
 
-!Entero methodsFor: 'arithmetic operations' stamp: 'HAW 9/24/2018 08:47:50'!
-fibonacci
-
-	| one two |
-	
-	one := Entero with: 1.
-	two := Entero with: 2.
-	
-	self isNegative ifTrue: [self error: Entero negativeFibonacciErrorDescription ].	
-	(self isZero or: [self isOne]) ifTrue: [^one].
-	
-	^ (self - one) fibonacci + (self - two) fibonacci
-		! !
-
 !Entero methodsFor: 'arithmetic operations' stamp: 'II 11/9/2020 21:49:25'!
 negated
 	 ^self * (self class with: -1)! !
@@ -497,22 +483,22 @@ negated
 
 	^anObject equalsEntero: self! !
 
-!Entero methodsFor: 'comparing' stamp: 'HernanWilkinson 5/7/2016 20:17'!
+!Entero methodsFor: 'comparing' stamp: 'II 11/16/2020 05:51:06'!
 hash
 
-	^value hash! !
+	^self integerValue hash! !
 
 
-!Entero methodsFor: 'printing' stamp: 'HAW 9/24/2018 08:53:19'!
+!Entero methodsFor: 'printing' stamp: 'II 11/16/2020 05:51:24'!
 printOn: aStream
 
-	aStream print: value ! !
+	aStream print: self integerValue ! !
 
 
-!Entero methodsFor: 'auxiliars' stamp: 'II 11/16/2020 02:54:52'!
+!Entero methodsFor: 'auxiliars' stamp: 'II 11/16/2020 05:50:23'!
 addToEntero:  anAugend
 	
-	^Numero with: value + anAugend integerValue! !
+	^Numero with: self integerValue + anAugend integerValue! !
 
 !Entero methodsFor: 'auxiliars' stamp: 'II 11/16/2020 02:56:27'!
 addToFraction: anAugend
@@ -533,10 +519,10 @@ divideFraction: aDividen
 
 	^Numero with:aDividen numerator over:aDividen denominator*self! !
 
-!Entero methodsFor: 'auxiliars' stamp: 'II 11/16/2020 03:48:41'!
+!Entero methodsFor: 'auxiliars' stamp: 'II 11/16/2020 05:50:44'!
 equalsEntero: anEntero
 
-	^value=anEntero integerValue ! !
+	^self integerValue=anEntero integerValue ! !
 
 !Entero methodsFor: 'auxiliars' stamp: 'II 11/16/2020 03:47:06'!
 equalsFraction: aFraction
@@ -571,23 +557,27 @@ substractFromFraction: aMinuend
 	^Numero with:newNumerator over: newDenominator ! !
 
 
-!Entero methodsFor: 'accessing' stamp: 'HernanWilkinson 5/7/2016 21:02'!
+!Entero methodsFor: 'accessing' stamp: 'II 11/16/2020 05:13:45'!
 integerValue
 
 	"Usamos integerValue en vez de value para que no haya problemas con el mensaje value implementado en Object - Hernan"
 	
-	^value! !
+	self subclassResponsibility ! !
 
 
-!Entero methodsFor: 'arithmetic operations - private' stamp: 'HernanWilkinson 5/7/2016 21:55'!
+!Entero methodsFor: 'arithmetic operations - private' stamp: 'II 11/16/2020 05:55:41'!
 // aDivisor 
 	
-	^self class with: value // aDivisor integerValue! !
+	^Numero with: self integerValue // aDivisor integerValue! !
 
-!Entero methodsFor: 'arithmetic operations - private' stamp: 'HernanWilkinson 5/7/2016 21:00'!
+!Entero methodsFor: 'arithmetic operations - private' stamp: 'jb 11/16/2020 14:31:21'!
+fibonacci
+	self subclassResponsibility ! !
+
+!Entero methodsFor: 'arithmetic operations - private' stamp: 'II 11/16/2020 05:49:19'!
 greatestCommonDivisorWith: anEntero 
 	
-	^self class with: (value gcd: anEntero integerValue)! !
+	^self class with: (self integerValue gcd: anEntero integerValue)! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -599,15 +589,213 @@ Entero class
 negativeFibonacciErrorDescription
 	^ ' Fibonacci no está definido aquí para Enteros Negativos'! !
 
-!Entero class methodsFor: 'instance creation' stamp: 'II 11/16/2020 04:48:10'!
+!Entero class methodsFor: 'instance creation' stamp: 'II 11/16/2020 05:33:22'!
 with: aValue 
 	
 	"Esta verificacion esta puesta por si se equivocan y quieren crear un Entero pasando otra cosa que un Integer - Hernan"
+
 	
 	aValue isInteger ifFalse: [  self error: 'aValue debe ser anInteger' ].
 	
-	^Entero new initializeWith: aValue.
+	aValue<0 ifTrue: [	^Negative with:aValue].
+	aValue=0 ifTrue: [	^Zero with:aValue].
+	aValue=1 ifTrue: [	^One with:aValue].
+	^BiggerThanOne with:aValue! !
+
+
+!classDefinition: #BiggerThanOne category: 'Numeros-Parte2-Ejercicio'!
+Entero subclass: #BiggerThanOne
+	instanceVariableNames: 'value'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Numeros-Parte2-Ejercicio'!
+
+!BiggerThanOne methodsFor: 'testing' stamp: 'II 11/16/2020 05:10:17'!
+isNegative
+	^false
 	! !
+
+!BiggerThanOne methodsFor: 'testing' stamp: 'II 11/16/2020 05:10:12'!
+isOne
+	^false
+	! !
+
+!BiggerThanOne methodsFor: 'testing' stamp: 'II 11/16/2020 05:10:08'!
+isZero
+	^false
+	! !
+
+
+!BiggerThanOne methodsFor: 'accessing' stamp: 'II 11/16/2020 05:12:36'!
+integerValue
+	^value! !
+
+
+!BiggerThanOne methodsFor: 'initialization' stamp: 'II 11/16/2020 05:44:42'!
+initializeWith:aValue
+	value:=aValue! !
+
+
+!BiggerThanOne methodsFor: 'auxiliars' stamp: 'II 11/16/2020 05:47:52'!
+divideEntero: aDividend
+	^Numero with: aDividend over: self! !
+
+
+!BiggerThanOne methodsFor: 'arithmetic operations' stamp: 'jb 11/16/2020 14:30:48'!
+fibonacci
+	|one two|
+	
+	one := Entero with: 1.
+	two := Entero with: 2.
+	
+	^(super - one) fibonacci  + (super - two) fibonacci.
+! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'BiggerThanOne class' category: 'Numeros-Parte2-Ejercicio'!
+BiggerThanOne class
+	instanceVariableNames: ''!
+
+!BiggerThanOne class methodsFor: 'initialization' stamp: 'II 11/16/2020 05:38:49'!
+with: aValue
+	^self new initializeWith: aValue! !
+
+
+!classDefinition: #Negative category: 'Numeros-Parte2-Ejercicio'!
+Entero subclass: #Negative
+	instanceVariableNames: 'value'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Numeros-Parte2-Ejercicio'!
+
+!Negative methodsFor: 'testing' stamp: 'II 11/16/2020 05:09:41'!
+isNegative
+	^true! !
+
+!Negative methodsFor: 'testing' stamp: 'II 11/16/2020 05:09:47'!
+isOne
+	^false! !
+
+!Negative methodsFor: 'testing' stamp: 'II 11/16/2020 05:09:52'!
+isZero
+	^false! !
+
+
+!Negative methodsFor: 'accessing' stamp: 'II 11/16/2020 05:12:54'!
+integerValue
+	^value! !
+
+
+!Negative methodsFor: 'initialization' stamp: 'II 11/16/2020 05:44:37'!
+initializeWith:aValue
+	value:=aValue! !
+
+
+!Negative methodsFor: 'arithmetic operations' stamp: 'jb 11/16/2020 14:32:06'!
+fibonacci
+	^self error: Entero negativeFibonacciErrorDescription.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'Negative class' category: 'Numeros-Parte2-Ejercicio'!
+Negative class
+	instanceVariableNames: ''!
+
+!Negative class methodsFor: 'initialization' stamp: 'II 11/16/2020 05:38:39'!
+with: aValue
+	^self new initializeWith: aValue! !
+
+
+!classDefinition: #One category: 'Numeros-Parte2-Ejercicio'!
+Entero subclass: #One
+	instanceVariableNames: 'value'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Numeros-Parte2-Ejercicio'!
+
+!One methodsFor: 'testing' stamp: 'II 11/16/2020 05:09:25'!
+isNegative
+	^false! !
+
+!One methodsFor: 'testing' stamp: 'II 11/16/2020 05:09:31'!
+isOne
+	^true! !
+
+!One methodsFor: 'testing' stamp: 'II 11/16/2020 05:09:20'!
+isZero
+	^false! !
+
+
+!One methodsFor: 'accessing' stamp: 'II 11/16/2020 05:13:18'!
+integerValue
+	^value! !
+
+
+!One methodsFor: 'initialization' stamp: 'II 11/16/2020 05:44:30'!
+initializeWith:aValue
+	value:=aValue! !
+
+
+!One methodsFor: 'arithmetic operations' stamp: 'jb 11/16/2020 14:22:24'!
+fibonacci
+	^Entero with: 1
+	! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'One class' category: 'Numeros-Parte2-Ejercicio'!
+One class
+	instanceVariableNames: ''!
+
+!One class methodsFor: 'initialization' stamp: 'II 11/16/2020 05:38:31'!
+with: aValue
+	^self new initializeWith: aValue! !
+
+
+!classDefinition: #Zero category: 'Numeros-Parte2-Ejercicio'!
+Entero subclass: #Zero
+	instanceVariableNames: 'value'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Numeros-Parte2-Ejercicio'!
+
+!Zero methodsFor: 'testing' stamp: 'II 11/16/2020 05:08:43'!
+isNegative
+	^false! !
+
+!Zero methodsFor: 'testing' stamp: 'II 11/16/2020 05:09:11'!
+isOne
+	^false! !
+
+!Zero methodsFor: 'testing' stamp: 'II 11/16/2020 05:08:54'!
+isZero
+	^true! !
+
+
+!Zero methodsFor: 'initialization' stamp: 'II 11/16/2020 05:44:24'!
+initializeWith:aValue
+	value:=aValue! !
+
+
+!Zero methodsFor: 'accessing' stamp: 'II 11/16/2020 05:13:26'!
+integerValue
+	^value! !
+
+
+!Zero methodsFor: 'arithmetic operations' stamp: 'jb 11/16/2020 14:23:01'!
+fibonacci
+	^Entero with: 1.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'Zero class' category: 'Numeros-Parte2-Ejercicio'!
+Zero class
+	instanceVariableNames: ''!
+
+!Zero class methodsFor: 'initialization' stamp: 'II 11/16/2020 05:35:35'!
+with: aValue
+	^self new initializeWith: aValue! !
 
 
 !classDefinition: #Fraccion category: 'Numeros-Parte2-Ejercicio'!
@@ -628,10 +816,10 @@ initializeWith: aNumerator over: aDenominator
 	denominator := aDenominator ! !
 
 
-!Fraccion methodsFor: 'testing' stamp: 'NR 9/23/2018 23:41:38'!
+!Fraccion methodsFor: 'testing' stamp: 'II 11/16/2020 05:08:30'!
 isNegative
 	
-	^numerator < 0! !
+	^numerator * denominator < 0 ! !
 
 !Fraccion methodsFor: 'testing' stamp: 'HernanWilkinson 5/7/2016 22:51'!
 isOne
