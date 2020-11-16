@@ -636,11 +636,6 @@ initializeWith:aValue
 	value:=aValue! !
 
 
-!BiggerThanOne methodsFor: 'auxiliars' stamp: 'II 11/16/2020 05:47:52'!
-divideEntero: aDividend
-	^Numero with: aDividend over: self! !
-
-
 !BiggerThanOne methodsFor: 'arithmetic operations' stamp: 'jb 11/16/2020 14:30:48'!
 fibonacci
 	|one two|
