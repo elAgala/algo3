@@ -346,6 +346,32 @@ test05TransferenceNotAllowedBetweenTheSamePerson
 		
 	! !
 
+!TransferTest methodsFor: 'tests' stamp: 'jb 12/10/2020 15:35:29'!
+test06transferenceGiverCanNotBeKindOfPortfolio
+
+	| account portfolio|
+	
+	account := ReceptiveAccount new.
+	portfolio := Portfolio new.	
+	[Transference from: portfolio to:account for:50*peso. self error: 'Not Error']
+	on: Error
+	do:[:anError| self assert: anError messageText = 'Neither giver nor receiver can be a Portfolio']
+		
+	! !
+
+!TransferTest methodsFor: 'tests' stamp: 'jb 12/10/2020 15:35:34'!
+test07transferenceReceiverCanNotBeKindOfPortfolio
+
+	| account portfolio|
+	
+	account := ReceptiveAccount new.
+	portfolio := Portfolio new.	
+	[Transference from: portfolio to:account for:50*peso. self error: 'Not Error']
+	on: Error
+	do:[:anError| self assert: anError messageText = 'Neither giver nor receiver can be a Portfolio']
+		
+	! !
+
 
 !classDefinition: #AccountTransaction category: 'ServiciosFinancieros-Ejercicio'!
 Object subclass: #AccountTransaction
@@ -738,10 +764,11 @@ withdraw
 Transference class
 	instanceVariableNames: ''!
 
-!Transference class methodsFor: 'instance creation' stamp: 'NI 12/10/2020 02:22:46'!
+!Transference class methodsFor: 'instance creation' stamp: 'jb 12/10/2020 15:43:49'!
 from:aGiver to:aReceiver for:aValue
 	| given received|
 	
+	((aGiver isKindOf: Portfolio) or: [aReceiver isKindOf: Portfolio]) ifTrue: [^self error: 'Neither giver nor receiver can be a Portfolio'].
 	aGiver = aReceiver  ifTrue:[^self error:'Receiver has to be different from giver'].
 	
 	given:= WithdrawTransfer for: aValue.
