@@ -702,23 +702,8 @@ hasRegistered: aTransaction
 
 	self subclassResponsibility ! !
 
-!Account methodsFor: 'main protocol' stamp: 'NI 12/17/2020 17:46:08'!
-summary: aSummary with:aClosure for:aTypeOfSummary
-
-	^self subclassResponsibility ! !
-
-!Account methodsFor: 'main protocol' stamp: 'NI 12/17/2020 18:02:14'!
+!Account methodsFor: 'main protocol' stamp: 'NI 12/17/2020 18:37:43'!
 summaryWith:aClosure
-
-	^self subclassResponsibility ! !
-
-!Account methodsFor: 'main protocol' stamp: 'NI 12/17/2020 17:58:02'!
-summaryWith:aClosure for:aTypeOfSummary
-
-	^self subclassResponsibility ! !
-
-!Account methodsFor: 'main protocol' stamp: 'NI 12/14/2020 19:58:55'!
-totalSummary: aSummary from:aTypeOfSummary
 
 	^self subclassResponsibility ! !
 
@@ -829,33 +814,11 @@ hasRegistered: aTransaction
 
 	^accounts anySatisfy: [ :anAccount | anAccount hasRegistered: aTransaction ]! !
 
-!Portfolio methodsFor: 'main protocol' stamp: 'NI 12/17/2020 17:47:03'!
-summary: aSummary with:aClosure for:aTypeOfSummary
-
-	accounts do:[:anAccount| anAccount summary: aSummary with:aClosure for:aTypeOfSummary].
-	! !
-
-!Portfolio methodsFor: 'main protocol' stamp: 'NI 12/17/2020 18:02:07'!
+!Portfolio methodsFor: 'main protocol' stamp: 'NI 12/17/2020 18:37:33'!
 summaryWith:aClosure
 
 	accounts do:[:anAccount| anAccount summaryWith:aClosure].
 	! !
-
-!Portfolio methodsFor: 'main protocol' stamp: 'NI 12/17/2020 17:58:29'!
-summaryWith:aClosure for:aTypeOfSummary
-
-	accounts do:[:anAccount| anAccount summaryWith:aClosure for:aTypeOfSummary].
-	! !
-
-!Portfolio methodsFor: 'main protocol' stamp: 'NI 12/14/2020 20:35:56'!
-totalSummary:aSummary from:aTypeOfSummary
-	|aTotal|
-	
-	aTotal:=0*peso.
-
-	accounts do:[:anAccount| aTotal:=aTotal+ (anAccount totalSummary: aSummary from:aTypeOfSummary )].
-	
-	^aTotal! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -916,37 +879,11 @@ register: aTransaction
 	transactions add: aTransaction 
 ! !
 
-!ReceptiveAccount methodsFor: 'main protocol' stamp: 'NI 12/17/2020 18:07:24'!
-summary: aSummary with:aClosure for:aTypeOfSummary
-	
-	transactions do:[:aTransaction| aClosure value:aTransaction value: aTypeOfSummary]
-! !
-
-!ReceptiveAccount methodsFor: 'main protocol' stamp: 'NI 12/17/2020 18:01:57'!
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'NI 12/17/2020 18:37:18'!
 summaryWith:aClosure
 	
-	transactions do:[:aTransaction| aClosure value:aTransaction.]
+	transactions do:[:aTransaction| aClosure value:aTransaction .]
 ! !
-
-!ReceptiveAccount methodsFor: 'main protocol' stamp: 'NI 12/17/2020 18:08:19'!
-summaryWith:aClosure for:aTypeOfSummary
-	
-	transactions do:[:aTransaction| aClosure value:aTransaction value:aTypeOfSummary .]
-! !
-
-!ReceptiveAccount methodsFor: 'main protocol' stamp: 'NI 12/17/2020 14:57:01'!
-totalSummary:aSummary from:aTypeOfSummary
-	|aTotal|
-	
-	aTotal:=0*peso.
-	
-	transactions do:[:aTransaction|
-		(aTypeOfSummary shouldAddForMessages:aTransaction ) ifTrue:
-			[aSummary add: (aTransaction printMessageFor:aTypeOfSummary)].
-		(aTypeOfSummary shouldAddForTotal:aTransaction ) ifTrue:
-			[aTotal:=aTransaction affectBalance:aTotal.]
-		].
-	^aTotal! !
 
 
 !ReceptiveAccount methodsFor: 'composition - private' stamp: 'HAW 5/25/2019 12:03:32'!
@@ -1200,7 +1137,7 @@ Report subclass: #AccountSummary
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Solucion-Portfolio'!
 
-!AccountSummary methodsFor: 'summary' stamp: 'NI 12/17/2020 18:15:42'!
+!AccountSummary methodsFor: 'summary' stamp: 'NI 12/17/2020 18:38:05'!
 summary
 	|summary total closure|
 	
@@ -1208,10 +1145,10 @@ summary
 	
 	summary:=OrderedCollection new.
 	
-	closure:=[:aTransaction :aTypeOfSummary| summary add: (aTransaction printMessageFor: aTypeOfSummary).
+	closure:=[:aTransaction| summary add: (aTransaction printMessageFor: self).
 		total:=aTransaction affectBalance: total].
 	
-	account summaryWith:closure for:self.
+	account summaryWith:closure.
 	
 	summary add: ('balance = ' append: total asString).
 	
@@ -1263,7 +1200,7 @@ shouldAddForTotal:aTranasction
 	^aTranasction isKindOf:TransferLeg! !
 
 
-!TransferSummary methodsFor: 'summary' stamp: 'NI 12/17/2020 18:17:31'!
+!TransferSummary methodsFor: 'summary' stamp: 'NI 12/17/2020 18:38:12'!
 summary
 	|summary total closure|
 	
@@ -1271,10 +1208,10 @@ summary
 	
 	summary:=OrderedCollection new.
 	
-	closure:=[:aTransaction :aTypeOfSummary| (aTypeOfSummary shouldAddForTotal: aTransaction)ifTrue:[
+	closure:=[:aTransaction| (self shouldAddForTotal: aTransaction)ifTrue:[
 		total:=aTransaction affectBalance: total]].
 	
-	account summaryWith:closure for:self.
+	account summaryWith:closure.
 	
 	summary add: ('Neto por Transferencia = ' append: total asString).
 	
