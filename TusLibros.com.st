@@ -5,7 +5,6 @@ TestCase subclass: #ShopTest
 	poolDictionaries: ''
 	category: 'TusLibros.com'!
 
-
 !ShopTest methodsFor: 'testing' stamp: 'NI 2/11/2021 04:16:57'!
 test01WhenCreatingACartItReturns0
 	| aCart aUser aPasswordForUser|
@@ -257,23 +256,6 @@ add: aQuantity OfBook: aBook
 		books add:aBook.
 		anAmount  := anAmount  -1
 	]! !
-
-"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
-
-!classDefinition: 'Cart class' category: 'TusLibros.com'!
-Cart class
-	instanceVariableNames: ''!
-
-!Cart class methodsFor: 'as yet unclassified' stamp: 'NI 2/10/2021 22:44:03'!
-for: aClient withPassword:aPassword
-	"
-	| aChart |
-	"
-	(aClient = '') ifTrue: [^ self error: 'Client Can Not Be NULL'].
-	
-	(aPassword = '') ifTrue: [^ self error: 'Password Can Not Be NULL'].
-	
-	^self new initialize! !
 
 
 !classDefinition: #CartsLine category: 'TusLibros.com'!
