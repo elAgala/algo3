@@ -50,7 +50,7 @@ test03WhenCreatingACartWithBlankPasswordItReturns1AndATextSayingTheError
 	
 	! !
 
-!ShopTest methodsFor: 'testing' stamp: 'NI 2/11/2021 04:56:43'!
+!ShopTest methodsFor: 'testing' stamp: 'NI 2/18/2021 01:55:05'!
 test04WhenCreatingACartTheCartIsEmpty
 		| aCart aUser aPasswordForUser books cartId|
 	
@@ -65,7 +65,7 @@ test04WhenCreatingACartTheCartIsEmpty
 	
 	books:=shop listCart: cartId.
 		
-	self assert: (books = '0|').
+	self assert: (books = '0|0').
 	! !
 
 !ShopTest methodsFor: 'testing' stamp: 'NI 2/11/2021 04:58:11'!
@@ -154,7 +154,7 @@ test09WhenAskingToAdd0BooksTheMethodReturns1
 	
 	! !
 
-!ShopTest methodsFor: 'testing' stamp: 'NI 2/11/2021 05:45:55'!
+!ShopTest methodsFor: 'testing' stamp: 'NI 2/18/2021 01:56:02'!
 test10WhenAskingToListBooksTheyAreListedCorrectly
 	| aCart aUser aPasswordForUser aBook cartId books|
 	
@@ -176,26 +176,70 @@ test10WhenAskingToListBooksTheyAreListedCorrectly
 	
 	books:=shop listCart: cartId .
 			
-	self assert: (books = '0|ValidISBN1|2|ValidISBN2|3|' ).
+	self assert: (books = '0|ValidISBN1|2|ValidISBN2|3|5' ).
+	
+	! !
+
+!ShopTest methodsFor: 'testing' stamp: 'NI 2/18/2021 04:07:21'!
+test11WhenAskingToCheckOutACartWithAnExpiredCardItReturnError
+	| aCart aUser aPasswordForUser cartId transaction|
+	
+	self setUp.
+	
+	aUser :='Julian'.
+	aPasswordForUser := 'Test123'.
+	
+	aCart := shop createCartFor: aUser withPassword: aPasswordForUser. 
+
+	cartId := (aCart copyFrom: 3 to: aCart size). 
+	
+	transaction := shop checkOutCart: cartId forCard: 1111222233334444 expiratonDate: '012020' namedTo: aUser .
+		
+	self assert: (transaction = '1|The Card Is Expired' ).
+	
+	! !
+
+!ShopTest methodsFor: 'testing' stamp: 'NI 2/18/2021 04:15:03'!
+test12WhenAskingToCheckOutAnEmptyCartItReturnsError
+	| aCart aUser aPasswordForUser cartId transaction|
+	
+	self setUp.
+	
+	aUser :='Julian'.
+	aPasswordForUser := 'Test123'.
+	
+	aCart := shop createCartFor: aUser withPassword: aPasswordForUser. 
+
+	cartId := (aCart copyFrom: 3 to: aCart size). 
+	
+	transaction := shop checkOutCart: cartId forCard: 1111222233334444 expiratonDate: 042020 namedTo: aUser .
+		
+	self assert: (transaction = '1|Cart Is Empty' ).
 	
 	! !
 
 
-!ShopTest methodsFor: 'setup' stamp: 'NI 2/11/2021 03:36:14'!
+!ShopTest methodsFor: 'setup' stamp: 'NI 2/18/2021 02:45:29'!
 setUp
-	|aCatalog|
+	|book1 price1 book2 price2|
 	
-	aCatalog:= OrderedCollection new.
+	shop:=Shop new initialize.
 	
-	aCatalog add: 'ValidISBN1'.
-	aCatalog add: 'ValidISBN2'.
+	book1:= 'ValidISBN1'.
+	price1:=25.
 	
-	shop:=Shop for: aCatalog! !
+	shop add:book1 withAPriceOf:price1.
+	
+	book2:= 'ValidISBN2'.
+	price2:=30.
+	
+	shop add:book2 withAPriceOf:price2.
+	! !
 
 
 !classDefinition: #Cart category: 'TusLibros.com'!
 Object subclass: #Cart
-	instanceVariableNames: 'books'
+	instanceVariableNames: 'books shop'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TusLibros.com'!
@@ -204,7 +248,7 @@ Object subclass: #Cart
 books
 	^books! !
 
-!Cart methodsFor: 'accesing' stamp: 'NI 2/11/2021 05:44:31'!
+!Cart methodsFor: 'accesing' stamp: 'NI 2/18/2021 01:54:46'!
 listBooks
 	|stringBooks booksAlreadyListed|
 	
@@ -221,7 +265,7 @@ listBooks
 		
 		booksAlreadyListed add: aBook.
 		].
-	
+	stringBooks:= stringBooks append: (books size)asString .
 	^stringBooks ! !
 
 !Cart methodsFor: 'accesing' stamp: 'NI 2/11/2021 05:20:15'!
@@ -244,6 +288,11 @@ quantityOf: aBook
 initialize
 	books:= OrderedCollection new.! !
 
+!Cart methodsFor: 'initialization' stamp: 'NI 2/18/2021 03:08:44'!
+initializeFor:aShop
+	books:= OrderedCollection new.
+	shop:=aShop.! !
+
 
 !Cart methodsFor: 'adding' stamp: 'NI 2/11/2021 05:04:47'!
 add: aQuantity OfBook: aBook
@@ -257,28 +306,44 @@ add: aQuantity OfBook: aBook
 		anAmount  := anAmount  -1
 	]! !
 
-
-!classDefinition: #CartsLine category: 'TusLibros.com'!
-Object subclass: #CartsLine
-	instanceVariableNames: 'carts users passwords'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'TusLibros.com'!
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'Cart class' category: 'TusLibros.com'!
+Cart class
+	instanceVariableNames: ''!
+
+!Cart class methodsFor: 'as yet unclassified' stamp: 'NI 2/10/2021 22:44:03'!
+for: aClient withPassword:aPassword
+	"
+	| aChart |
+	"
+	(aClient = '') ifTrue: [^ self error: 'Client Can Not Be NULL'].
+	
+	(aPassword = '') ifTrue: [^ self error: 'Password Can Not Be NULL'].
+	
+	^self new initialize! !
 
 
 !classDefinition: #Shop category: 'TusLibros.com'!
 Object subclass: #Shop
-	instanceVariableNames: 'cartsLine catalog clients passwords'
+	instanceVariableNames: 'cartsLine catalog prices clients passwords'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TusLibros.com'!
 
-!Shop methodsFor: 'initialization' stamp: 'NI 2/11/2021 03:40:55'!
-initializeWith:aCatalog
-	catalog:=aCatalog.
+!Shop methodsFor: 'initialization' stamp: 'NI 2/18/2021 02:59:12'!
+initialize
+	catalog := OrderedCollection new.
 	clients:= OrderedCollection new.
 	passwords := OrderedCollection new.
-	cartsLine := OrderedCollection  new.! !
+	cartsLine := OrderedCollection  new.
+	prices := OrderedCollection  new.! !
+
+
+!Shop methodsFor: 'catalog' stamp: 'NI 2/18/2021 02:45:08'!
+add: aBook withAPriceOf:aPrice
+	catalog add: aBook.
+	prices add:aPrice.! !
 
 
 !Shop methodsFor: 'testing' stamp: 'NI 2/11/2021 04:44:44'!
@@ -314,7 +379,29 @@ addToCart: aCartId anAmountOf: anAmount ofTheBook: aBookISBN
 	
 	^ '0|OK'! !
 
-!Shop methodsFor: 'carts' stamp: 'NI 2/11/2021 03:53:51'!
+!Shop methodsFor: 'carts' stamp: 'NI 2/18/2021 04:16:26'!
+checkOutCart: aCartId forCard: creditCardNumber expiratonDate: aExpirationDate namedTo: creditCardOwner
+
+	| year month hoy vencimiento|
+
+	(creditCardNumber asString size = 16) ifFalse: [ ^'1|Non Valid Cart Id'].
+	(self isAnInteger: aExpirationDate) ifFalse: [^'1|The Expiration Date Must Be Composed Only By Numbers'].
+	(aExpirationDate  asString size = 6) ifFalse: [^'1|The Expiration Date Must Be Composed Only By Numbers'].
+	(creditCardOwner size > 30) ifTrue: [^'1|The Owner Name Is Too Long'].
+	
+	hoy:= Date today.
+	month:= (aExpirationDate asString copyFrom:1 to:2)asInteger.
+	year:=(aExpirationDate asString copyFrom:3 to:6)asInteger.
+	(month = 12) ifTrue: [month:=1.
+		year := year +1] ifFalse:[month:=month+1].
+	
+	vencimiento:= Date newDay: 1 month: (Date nameOfMonth:month) year: year.
+	
+	(hoy > vencimiento or: hoy = vencimiento) ifTrue: [^'1|The Card Is Expired'].
+	
+	! !
+
+!Shop methodsFor: 'carts' stamp: 'NI 2/18/2021 03:15:17'!
 createCartFor: aClient withPassword:aPassword
 	| aCart|
 	
@@ -322,7 +409,7 @@ createCartFor: aClient withPassword:aPassword
 	
 	(aPassword = '') ifTrue: [^ '1|Password Can Not Be NULL'].
 	
-	aCart:=Cart new initialize. 
+	aCart:=Cart new initializeFor:self. 
 	
 	cartsLine add:aCart.
 	clients add:aClient.
@@ -356,15 +443,3 @@ listCart: aCartId
 	
 	
 	^stringBooks ! !
-
-"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
-
-!classDefinition: 'Shop class' category: 'TusLibros.com'!
-Shop class
-	instanceVariableNames: ''!
-
-!Shop class methodsFor: 'as yet unclassified' stamp: 'NI 2/11/2021 03:41:05'!
-for: aCatalog
-	(aCatalog isKindOf: OrderedCollection) ifFalse: [^self error: 'The Catalog Should Be An Ordered Collection'].
-	
-	^self new initializeWith:aCatalog! !
