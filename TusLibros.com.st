@@ -180,7 +180,7 @@ test10WhenAskingToListBooksTheyAreListedCorrectly
 	
 	! !
 
-!ShopTest methodsFor: 'testing' stamp: 'NI 2/18/2021 04:07:21'!
+!ShopTest methodsFor: 'testing' stamp: 'AG 2/18/2021 13:55:24'!
 test11WhenAskingToCheckOutACartWithAnExpiredCardItReturnError
 	| aCart aUser aPasswordForUser cartId transaction|
 	
@@ -195,7 +195,7 @@ test11WhenAskingToCheckOutACartWithAnExpiredCardItReturnError
 	
 	transaction := shop checkOutCart: cartId forCard: 1111222233334444 expiratonDate: '012020' namedTo: aUser .
 		
-	self assert: (transaction = '1|The Card Is Expired' ).
+	self assert: (transaction = '1 | CARD_EXPIRED' ).
 	
 	! !
 
@@ -218,8 +218,60 @@ test12WhenAskingToCheckOutAnEmptyCartItReturnsError
 	
 	! !
 
+!ShopTest methodsFor: 'testing' stamp: 'AG 2/18/2021 15:22:06'!
+test13WhenAskingToCheckOutWithInvalidCardReturnsError
+	| aCart aUser aBook aPasswordForUser cartId transaction|
+	
+	self setUp.
+	
+	aUser :='Julian'.
+	aPasswordForUser := 'Test123'.
+	
+	aCart := shop createCartFor: aUser withPassword: aPasswordForUser. 
 
-!ShopTest methodsFor: 'setup' stamp: 'NI 2/18/2021 02:45:29'!
+	cartId := (aCart copyFrom: 3 to: aCart size). 
+	aBook:='ValidISBN1'.
+	
+	aCart := shop createCartFor: aUser withPassword: aPasswordForUser. 
+
+	cartId := (aCart copyFrom: 3 to: aCart size). 
+	
+	shop addToCart: cartId anAmountOf:1 ofTheBook: aBook.
+		
+	transaction := shop checkOutCart: cartId forCard: 1111222233334444123123 expiratonDate: 042020 namedTo: aUser .
+		
+	self assert: (transaction = '1 | CARD_NUMBER_INVALID' ).
+	
+	! !
+
+!ShopTest methodsFor: 'testing' stamp: 'AG 2/18/2021 15:29:25'!
+test14WhenAskingToCheckOutWithInvalidCardOwnerNameReturnsError
+	| aCart aUser aBook aPasswordForUser cartId transaction|
+	
+	self setUp.
+	
+	aUser :='ASDASDASDASDASDASDASDASDASDASDASDASDASDASDASD'.
+	aPasswordForUser := 'Test123'.
+	
+	aCart := shop createCartFor: aUser withPassword: aPasswordForUser. 
+
+	cartId := (aCart copyFrom: 3 to: aCart size). 
+	aBook:='ValidISBN1'.
+	
+	aCart := shop createCartFor: aUser withPassword: aPasswordForUser. 
+
+	cartId := (aCart copyFrom: 3 to: aCart size). 
+	
+	shop addToCart: cartId anAmountOf:1 ofTheBook: aBook.
+		
+	transaction := shop checkOutCart: cartId forCard: 1111222233334443 expiratonDate: 122020 namedTo: aUser .
+		
+	self assert: (transaction = '1 | INVALID_OWNER_NAME' ).
+	
+	! !
+
+
+!ShopTest methodsFor: 'setup' stamp: 'AG 2/18/2021 13:49:04'!
 setUp
 	|book1 price1 book2 price2|
 	
@@ -247,6 +299,11 @@ Object subclass: #Cart
 !Cart methodsFor: 'accesing' stamp: 'NI 2/10/2021 20:38:26'!
 books
 	^books! !
+
+!Cart methodsFor: 'accesing' stamp: 'AG 2/18/2021 14:06:29'!
+isEmpty
+	
+	^books size = 0! !
 
 !Cart methodsFor: 'accesing' stamp: 'NI 2/18/2021 01:54:46'!
 listBooks
@@ -282,6 +339,17 @@ quantityOf: aBook
 	^quantity
 	
 	! !
+
+!Cart methodsFor: 'accesing' stamp: 'AG 2/18/2021 15:16:21'!
+totalAmount
+
+	| amount |
+	
+	amount := 0.
+	books do: [ :aBook |
+		amount := amount + (shop priceOf: aBook) asInteger .
+	].
+	^amount.! !
 
 
 !Cart methodsFor: 'initialization' stamp: 'NI 2/10/2021 20:35:18'!
@@ -324,9 +392,36 @@ for: aClient withPassword:aPassword
 	^self new initialize! !
 
 
+!classDefinition: #MerchantProcessor category: 'TusLibros.com'!
+Object subclass: #MerchantProcessor
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'TusLibros.com'!
+
+!MerchantProcessor methodsFor: 'as yet unclassified' stamp: 'AG 2/18/2021 14:03:08'!
+debitCard: cardNumber expiringAt: expirationDate namedTo: cardOwner for: anAmount
+	| today expirationMonth expirationYear expiration |
+
+	(cardNumber asString size = 16) ifFalse: [ ^'1 | CARD_NUMBER_INVALID'].
+	(expirationDate asNumber isNumber) ifFalse: [^'1 | INVALID_EXPIRATION_DATE'].
+	(expirationDate  asString size = 6) ifFalse: [^'1 | INVALID_EXPIRATION_DATE'].
+	today:= Date today.
+	expirationMonth := (expirationDate asString copyFrom:1 to:2)asInteger.
+	expirationYear:=(expirationDate asString copyFrom:3 to:6)asInteger.
+	(expirationMonth = 12) ifTrue: [expirationMonth :=1.
+		expirationYear := expirationYear +1] ifFalse:[expirationMonth :=expirationMonth +1].
+	
+	expiration := Date newDay: 1 month: (Date nameOfMonth:expirationMonth ) year: expirationYear .
+	
+	(today > expiration or: today = expiration) ifTrue: [^'1 | CARD_EXPIRED'].
+
+	(cardOwner size > 30) ifTrue: [^'1 | INVALID_OWNER_NAME'].! !
+
+
 !classDefinition: #Shop category: 'TusLibros.com'!
 Object subclass: #Shop
-	instanceVariableNames: 'cartsLine catalog prices clients passwords'
+	instanceVariableNames: 'cartsLine catalog prices clients passwords transactions'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TusLibros.com'!
@@ -344,6 +439,25 @@ initialize
 add: aBook withAPriceOf:aPrice
 	catalog add: aBook.
 	prices add:aPrice.! !
+
+!Shop methodsFor: 'catalog' stamp: 'AG 2/18/2021 15:21:24'!
+indexOf: aBookISBN
+	| index |
+	
+	index:=1.
+	catalog do:[:aISBN|
+		(aBookISBN  = aISBN ) ifTrue:[^index].
+		index := index + 1.
+	].! !
+
+!Shop methodsFor: 'catalog' stamp: 'AG 2/18/2021 15:20:41'!
+priceOf: aBookISBN
+
+	| index |
+	
+	(catalog includes:aBookISBN) ifFalse: [^'1 | INVALID_ISBN'].
+	index := self indexOf: aBookISBN .
+	^prices at: (index asInteger ).! !
 
 
 !Shop methodsFor: 'testing' stamp: 'NI 2/11/2021 04:44:44'!
@@ -379,27 +493,19 @@ addToCart: aCartId anAmountOf: anAmount ofTheBook: aBookISBN
 	
 	^ '0|OK'! !
 
-!Shop methodsFor: 'carts' stamp: 'NI 2/18/2021 04:16:26'!
-checkOutCart: aCartId forCard: creditCardNumber expiratonDate: aExpirationDate namedTo: creditCardOwner
-
-	| year month hoy vencimiento|
-
-	(creditCardNumber asString size = 16) ifFalse: [ ^'1|Non Valid Cart Id'].
-	(self isAnInteger: aExpirationDate) ifFalse: [^'1|The Expiration Date Must Be Composed Only By Numbers'].
-	(aExpirationDate  asString size = 6) ifFalse: [^'1|The Expiration Date Must Be Composed Only By Numbers'].
-	(creditCardOwner size > 30) ifTrue: [^'1|The Owner Name Is Too Long'].
+!Shop methodsFor: 'carts' stamp: 'AG 2/18/2021 15:07:46'!
+checkOutCart: aCartId forCard: cardNumber expiratonDate: aExpirationDate namedTo: cardOwner
 	
-	hoy:= Date today.
-	month:= (aExpirationDate asString copyFrom:1 to:2)asInteger.
-	year:=(aExpirationDate asString copyFrom:3 to:6)asInteger.
-	(month = 12) ifTrue: [month:=1.
-		year := year +1] ifFalse:[month:=month+1].
+	| position cart transactionAmount response merchantProcessor |
 	
-	vencimiento:= Date newDay: 1 month: (Date nameOfMonth:month) year: year.
-	
-	(hoy > vencimiento or: hoy = vencimiento) ifTrue: [^'1|The Card Is Expired'].
-	
-	! !
+	position := 	aCartId  asInteger.
+	(position > cartsLine size ) ifTrue:[^'1 | INVALID_CART_ID'].
+	cart := cartsLine at: position.
+	(cart isEmpty ) ifTrue:[^'1 | CART_EMPTY'].
+	transactionAmount  := cart totalAmount .
+	merchantProcessor  := MerchantProcessor new.
+	response := merchantProcessor debitCard:cardNumber expiringAt:aExpirationDate namedTo:cardOwner for: transactionAmount .
+	^response.! !
 
 !Shop methodsFor: 'carts' stamp: 'NI 2/18/2021 03:15:17'!
 createCartFor: aClient withPassword:aPassword
